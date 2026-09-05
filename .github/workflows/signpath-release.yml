@@ -1,0 +1,116 @@
+name: signpath-release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  sign-release:
+    runs-on: windows-latest
+    steps:
+      - name: Require SignPath configuration
+        if: ${{ vars.SIGNPATH_ENABLED != 'true' }}
+        shell: pwsh
+        run: throw 'SignPath signing is not configured for this repository.'
+
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.400'
+
+      - name: Repository safety checks
+        shell: pwsh
+        run: ./build/Check-Repository.ps1
+
+      - name: Build unsigned Agent
+        shell: pwsh
+        run: ./build/Build-Agent.ps1
+
+      - name: Upload unsigned Agent to GitHub
+        id: upload-agent
+        uses: actions/upload-artifact@v7
+        with:
+          name: tsd-support-agent-unsigned
+          path: artifacts/agent-unsigned/TsdSupportAgent.exe
+          if-no-files-found: error
+          archive: false
+
+      - name: Submit Agent signing request
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
+          project-slug: '${{ vars.SIGNPATH_PROJECT_SLUG }}'
+          signing-policy-slug: '${{ vars.SIGNPATH_AGENT_POLICY_SLUG }}'
+          artifact-configuration-slug: '${{ vars.SIGNPATH_AGENT_ARTIFACT_CONFIG }}'
+          github-artifact-id: '${{ steps.upload-agent.outputs.artifact-id }}'
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          skip-decompress: true
+          output-artifact-directory: 'artifacts/agent-signed'
+
+      - name: Locate signed Agent and build Setup
+        shell: pwsh
+        run: |
+          $agent = Get-ChildItem artifacts/agent-signed -Recurse -Filter TsdSupportAgent.exe | Select-Object -First 1
+          if (-not $agent) { throw 'Signed Agent not found.' }
+          ./build/Validate-BinaryMetadata.ps1 -Path $agent.FullName -ExpectedVersion '0.4.0'
+          ./build/Prepare-Setup.ps1 -AgentPath $agent.FullName
+
+      - name: Upload unsigned Setup to GitHub
+        id: upload-setup
+        uses: actions/upload-artifact@v7
+        with:
+          name: tsd-support-setup-unsigned
+          path: artifacts/setup-unsigned/TSD-Support-Setup.exe
+          if-no-files-found: error
+          archive: false
+
+      - name: Submit Setup signing request
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
+          project-slug: '${{ vars.SIGNPATH_PROJECT_SLUG }}'
+          signing-policy-slug: '${{ vars.SIGNPATH_SETUP_POLICY_SLUG }}'
+          artifact-configuration-slug: '${{ vars.SIGNPATH_SETUP_ARTIFACT_CONFIG }}'
+          github-artifact-id: '${{ steps.upload-setup.outputs.artifact-id }}'
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          skip-decompress: true
+          output-artifact-directory: 'artifacts/setup-signed'
+
+      - name: Verify Authenticode
+        shell: pwsh
+        run: |
+          $agent = Get-ChildItem artifacts/agent-signed -Recurse -Filter TsdSupportAgent.exe | Select-Object -First 1
+          $setup = Get-ChildItem artifacts/setup-signed -Recurse -Filter TSD-Support-Setup.exe | Select-Object -First 1
+          if (-not $agent -or -not $setup) { throw 'Signed release artifact missing.' }
+          ./build/Validate-BinaryMetadata.ps1 -Path $agent.FullName -ExpectedVersion '0.4.0'
+          ./build/Validate-BinaryMetadata.ps1 -Path $setup.FullName -ExpectedVersion '0.4.0'
+          $agentSig = Get-AuthenticodeSignature $agent.FullName
+          $setupSig = Get-AuthenticodeSignature $setup.FullName
+          if ($agentSig.Status -ne 'Valid') { throw 'Agent signature invalid.' }
+          if ($setupSig.Status -ne 'Valid') { throw 'Setup signature invalid.' }
+          if (-not $agentSig.TimeStamperCertificate) { throw 'Agent timestamp missing.' }
+          if (-not $setupSig.TimeStamperCertificate) { throw 'Setup timestamp missing.' }
+          if ($agentSig.SignerCertificate.Subject -ne $setupSig.SignerCertificate.Subject) { throw 'Agent and Setup publishers differ.' }
+          New-Item -ItemType Directory -Force artifacts/final | Out-Null
+          Copy-Item $agent.FullName artifacts/final/TsdSupportAgent.exe
+          Copy-Item $setup.FullName artifacts/final/TSD-Support-Setup.exe
+          $ah=(Get-FileHash artifacts/final/TsdSupportAgent.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          $sh=(Get-FileHash artifacts/final/TSD-Support-Setup.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          @("$ah  TsdSupportAgent.exe","$sh  TSD-Support-Setup.exe") | Set-Content artifacts/final/SHA256SUMS.txt -Encoding ASCII
+
+      - name: Upload signed release candidate
+        uses: actions/upload-artifact@v7
+        with:
+          name: tsd-support-signed-release
+          path: artifacts/final/
+          retention-days: 30
