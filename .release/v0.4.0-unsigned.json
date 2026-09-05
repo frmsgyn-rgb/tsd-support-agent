@@ -1,0 +1,8 @@
+{
+  "tag": "v0.4.0-unsigned",
+  "source_commit": "7deb9aa8179d2ce78cd67020b04efb871f9a8bd3",
+  "build_run_id": 33986116742,
+  "artifact_id": 9975209272,
+  "agent_sha256": "057660aad98285021c84b43bd9ebb8a26e99aae93173583b9eca02f264dec7d6",
+  "setup_sha256": "71e12aa112c12f9dd2c6e656794c3091b891d7289d6f2998971635f48839b9ef"
+}

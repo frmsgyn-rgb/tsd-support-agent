@@ -1,0 +1,81 @@
+name: publish-unsigned-candidate
+
+on:
+  push:
+    paths:
+      - '.release/v0.4.0-unsigned.json'
+      - '.release/v0.4.0-unsigned.md'
+      - '.github/workflows/publish-unsigned-candidate.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Verify release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          META=.release/v0.4.0-unsigned.json
+          test "$(jq -r '.tag' "$META")" = "v0.4.0-unsigned"
+          test "$(jq -r '.source_commit' "$META")" = "7deb9aa8179d2ce78cd67020b04efb871f9a8bd3"
+          test "$(jq -r '.build_run_id' "$META")" = "33986116742"
+          test "$(jq -r '.artifact_id' "$META")" = "9975209272"
+
+      - name: Download validated CI artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+          gh run download 33986116742 \
+            --repo "${GITHUB_REPOSITORY}" \
+            --name tsd-support-unsigned-ci \
+            --dir release-assets
+
+      - name: Flatten and verify hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp release-assets/agent-unsigned/TsdSupportAgent.exe release-assets/TsdSupportAgent.exe
+          cp release-assets/setup-unsigned/TSD-Support-Setup.exe release-assets/TSD-Support-Setup.exe
+
+          AGENT_EXPECTED="$(jq -r '.agent_sha256' .release/v0.4.0-unsigned.json)"
+          SETUP_EXPECTED="$(jq -r '.setup_sha256' .release/v0.4.0-unsigned.json)"
+
+          AGENT_ACTUAL="$(sha256sum release-assets/TsdSupportAgent.exe | awk '{print $1}')"
+          SETUP_ACTUAL="$(sha256sum release-assets/TSD-Support-Setup.exe | awk '{print $1}')"
+
+          test "$AGENT_ACTUAL" = "$AGENT_EXPECTED"
+          test "$SETUP_ACTUAL" = "$SETUP_EXPECTED"
+
+          printf '%s  %s\n' "$AGENT_ACTUAL" "TsdSupportAgent.exe" > release-assets/SHA256SUMS.txt
+          printf '%s  %s\n' "$SETUP_ACTUAL" "TSD-Support-Setup.exe" >> release-assets/SHA256SUMS.txt
+
+      - name: Publish unsigned prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v0.4.0-unsigned --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release already exists; refusing to overwrite."
+            exit 1
+          fi
+
+          gh release create v0.4.0-unsigned \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target 7deb9aa8179d2ce78cd67020b04efb871f9a8bd3 \
+            --title "TSD Support Agent v0.4.0 — unsigned pre-signing candidate" \
+            --notes-file .release/v0.4.0-unsigned.md \
+            --prerelease \
+            release-assets/TsdSupportAgent.exe \
+            release-assets/TSD-Support-Setup.exe \
+            release-assets/SHA256SUMS.txt
