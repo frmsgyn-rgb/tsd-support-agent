@@ -998,3 +998,4 @@ static class SetupFileLog
             catch { }
         }
     }
+}
