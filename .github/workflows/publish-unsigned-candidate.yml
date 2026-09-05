@@ -72,7 +72,7 @@ jobs:
 
           gh release create v0.4.0-unsigned \
             --repo "${GITHUB_REPOSITORY}" \
-            --target 7deb9aa8179d2ce78cd67020b04efb871f9a8bd3 \
+            --target "${GITHUB_SHA}" \
             --title "TSD Support Agent v0.4.0 — unsigned pre-signing candidate" \
             --notes-file .release/v0.4.0-unsigned.md \
             --prerelease \
