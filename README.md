@@ -1,3 +1,5 @@
+[Reading 147 lines from start (total: 147 lines, 0 remaining)]
+
 # TSD Support Agent
 
 TSD Support Agent is a lightweight open-source Windows service for authorized endpoint health monitoring and inventory collection.

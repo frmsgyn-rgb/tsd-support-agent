@@ -1,0 +1,16 @@
+[Reading 14 lines from start (total: 14 lines, 0 remaining)]
+
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml,json}]
+indent_style = space
+indent_size = 2

@@ -1,0 +1,20 @@
+[Reading 18 lines from start (total: 18 lines, 0 remaining)]
+
+**/bin/
+**/obj/
+**/publish/
+*.user
+*.suo
+*.pfx
+*.p12
+*.cer
+*.crt
+*.key
+*.pem
+*.snk
+.env
+.env.*
+src/TsdSupportSetup/EmbeddedAgentInfo.Generated.cs
+artifacts/
+artifacts-*/
+release/
