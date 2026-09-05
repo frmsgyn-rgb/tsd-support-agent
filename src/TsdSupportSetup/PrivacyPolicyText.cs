@@ -1,5 +1,3 @@
-[Reading 40 lines from start (total: 40 lines, 0 remaining)]
-
 static class PrivacyPolicyText
 {
     public const string Version = "1.0";

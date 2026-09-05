@@ -1,5 +1,3 @@
-[Reading 55 lines from start (total: 55 lines, 0 remaining)]
-
 # Privacy Policy
 
 Policy version: `1.0`

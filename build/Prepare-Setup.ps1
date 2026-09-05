@@ -1,5 +1,3 @@
-[Reading 46 lines from start (total: 46 lines, 0 remaining)]
-
 param(
     [Parameter(Mandatory=$true)][string]$AgentPath,
     [string]$Configuration = 'Release',

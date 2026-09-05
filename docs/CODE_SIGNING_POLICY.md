@@ -1,5 +1,3 @@
-[Reading 56 lines from start (total: 56 lines, 0 remaining)]
-
 # Code signing policy
 
 **Free code signing provided by SignPath.io, certificate by SignPath Foundation** — after project acceptance and signing activation.

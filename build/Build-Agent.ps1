@@ -1,5 +1,3 @@
-[Reading 29 lines from start (total: 29 lines, 0 remaining)]
-
 param(
     [string]$Configuration = 'Release',
     [string]$Output = 'artifacts/agent-unsigned'

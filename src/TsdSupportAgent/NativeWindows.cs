@@ -1,5 +1,3 @@
-[Reading 267 lines from start (total: 267 lines, 0 remaining)]
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;

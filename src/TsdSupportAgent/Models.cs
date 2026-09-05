@@ -1,5 +1,3 @@
-[Reading 89 lines from start (total: 89 lines, 0 remaining)]
-
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;

@@ -1,5 +1,3 @@
-[Reading 18 lines from start (total: 18 lines, 0 remaining)]
-
 # Third-Party Notices
 
 This project is licensed under Apache-2.0. It also depends on open-source .NET components.

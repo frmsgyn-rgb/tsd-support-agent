@@ -1,5 +1,3 @@
-[Reading 27 lines from start (total: 27 lines, 0 remaining)]
-
 param(
     [Parameter(Mandatory=$true)][string]$Path,
     [Parameter(Mandatory=$true)][string]$ExpectedVersion

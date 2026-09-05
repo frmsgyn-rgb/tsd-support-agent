@@ -1,5 +1,3 @@
-[Reading 1000 lines from start (total: 1001 lines, 1 remaining)]
-
 using System;
 using System.IO;
 using System.Diagnostics;

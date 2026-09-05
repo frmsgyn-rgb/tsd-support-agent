@@ -1,5 +1,3 @@
-[Reading 25 lines from start (total: 25 lines, 0 remaining)]
-
 # Contributing
 
 Contributions are welcome if they preserve the project's narrow support/monitoring scope and the SignPath Foundation OSS conditions.

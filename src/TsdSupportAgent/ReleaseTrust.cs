@@ -1,5 +1,3 @@
-[Reading 68 lines from start (total: 68 lines, 0 remaining)]
-
 using System;
 using System.IO;
 using System.Security.Cryptography;

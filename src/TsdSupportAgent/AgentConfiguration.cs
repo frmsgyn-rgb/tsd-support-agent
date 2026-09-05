@@ -1,5 +1,3 @@
-[Reading 50 lines from start (total: 50 lines, 0 remaining)]
-
 using System;
 using System.IO;
 using System.Text.Json;

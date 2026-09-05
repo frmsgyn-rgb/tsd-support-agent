@@ -1,5 +1,3 @@
-[Reading 45 lines from start (total: 45 lines, 0 remaining)]
-
 # Public Repository / SignPath Checklist
 
 ## Completed locally

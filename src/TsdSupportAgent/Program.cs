@@ -1,5 +1,3 @@
-[Reading 579 lines from start (total: 579 lines, 0 remaining)]
-
 using System;
 using System.Collections.Generic;
 using System.IO;

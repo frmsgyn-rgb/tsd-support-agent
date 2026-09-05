@@ -1,5 +1,3 @@
-[Reading 10 lines from start (total: 10 lines, 0 remaining)]
-
 version: 2
 updates:
   - package-ecosystem: nuget

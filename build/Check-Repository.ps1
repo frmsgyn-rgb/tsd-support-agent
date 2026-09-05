@@ -1,5 +1,3 @@
-[Reading 42 lines from start (total: 42 lines, 0 remaining)]
-
 $ErrorActionPreference = 'Stop'
 $Root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 
